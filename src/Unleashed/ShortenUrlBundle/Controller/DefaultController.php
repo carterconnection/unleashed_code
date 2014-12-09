@@ -34,7 +34,10 @@ class DefaultController extends SuperController
     public function viewAction(Request $request, $urlCode)
     {
         $data = new \stdClass();
-        
+        $data->url = UrlsQuery::create()
+            ->filterByUrlCode($urlCode)
+        ->findOne();
+//$this->pre($data);die;
         return $this->render(
             'UnleashedShortenUrlBundle:Default:view.html.twig'
             , array(
@@ -68,6 +71,7 @@ class DefaultController extends SuperController
         ->findOne();
         
         if($check){
+//            $this->forward('UnleashedShortenUrlBundle:Default:view');
             $this->redirect($this->generateUrl('unleashed_view', array('urlCode' => $check->getUrlCode())));
         }
         
@@ -79,6 +83,6 @@ class DefaultController extends SuperController
         $newUrl->setDateAdded('now');
         $newUrl->setQrCode(null);
         
-        return $urlcode;
+        $this->redirect($this->generateUrl('unleashed_view', array('urlCode' => $newUrl->getUrlCode())));
     }
 }

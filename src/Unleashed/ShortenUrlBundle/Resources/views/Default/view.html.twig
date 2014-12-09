@@ -3,19 +3,15 @@
 {% block content %}
     
     <div>
-        <form>
-    		<h1><span>Shorten</span> <lable> Url </lable> </h1>
-  			<div class="inset">
-	  			<p>
-                    <label for="email">EMAIL ADDRESS</label>
-                    <input type="text" id="" name="" placeholder="Shorten Your Url" required/>
-				</p>
- 			 </div>
- 	 
-			  <p class="p-container">
-			    <input type="submit" value="Login">
-			  </p>
-		</form>
+        <div>
+            <span>Url: {{ data.url.urlCode }}</span>
+        </div>
+        <div>
+            <span>Link: {{ data.url.fullUrl }}</span>
+        </div>
+        <div>
+            <span>Date: {{ data.url.dateAdded|date('Y-m-d') }}</span>
+        </div>
     </div>
     
 {% endblock %}
