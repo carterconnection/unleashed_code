@@ -1,22 +1,40 @@
 {% extends 'UnleashedShortenUrlBundle::layout.html.twig' %}
 
+{% block styles %}
+    {{ parent() }}
+    <style>
+        #view-wrap{
+            width: 50%;
+            margin: 13em auto 0;
+            background: #fff;
+            padding: 20px;
+            border-radius: 7px;
+            -moz-border-radius: 7px;
+            -webkit-border-radius: 7px;
+        }
+        .label {
+            font-weight: 700;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
     
-    <div>
+    <div id="view-wrap">
         <div>
-            <span>Shortened Url: {{ data.shortenedUrl }}</span>
+            <span class="label">Shortened Url:</span><span>{{ data.shortenedUrl }}</span>
         </div>
         <div>
-            <span>UrlCode: {{ data.url.urlCode }}</span>
+            <span class="label">UrlCode:</span><span>{{ data.url.urlCode }}</span>
         </div>
         <div>
-            <span>Link: {{ data.url.fullUrl }}</span>
+            <span class="label">Link:</span><span>{{ data.url.fullUrl }}</span>
         </div>
         <div>
-            <span>Date: {{ data.url.dateAdded|date('Y-m-d') }}</span>
+            <span class="label">Date:</span><span>{{ data.url.dateAdded|date('Y-m-d') }}</span>
         </div>
         <div>
-            <span>Qr Code: </span>
+            <span class="label">Qr Code: </span>
             <img alt="{{ data.shortenedUrl }}"src="{{ qrcode_data_uri('{{ data.shortenedUrl }}', size=200, padding=10) }}" />
         </div>
     </div>

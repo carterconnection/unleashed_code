@@ -18,7 +18,7 @@ class DefaultController extends SuperController
         if($request->getMethod() == 'POST'){
             $url = $request->request->get('url', null);
             $viewUrlCode = $this->insertUrl($url);
-            
+
             if(!empty($viewUrlCode)){
                 return $this->redirect($this->generateUrl('unleashed_view', array('urlCode' => $viewUrlCode)));                
             }
@@ -36,10 +36,16 @@ class DefaultController extends SuperController
     {
         $data = new \stdClass();
 
-        $data->url = UrlsQuery::create()
+        $data->url = UrlsQuery::create('u')
+            ->leftJoinWith('UsersByIp')
+            ->addJoinCondition('UsersByIp', 'UsersByIp.IpAddress = ?', $this->getClientIp())
             ->filterByUrlCode($urlCode)
         ->findOne();
-
+        
+        foreach($data->url->getUsersByIps() as $redirect){
+            $data->url->currentUserRedirects = $redirect->getRedirectCount();
+        }
+        
         $data->shortenedUrl = $this->generateUrl('unleashed_view', array('urlCode' => $data->url->getUrlCode()), true);
 
         return $this->render(
@@ -57,27 +63,7 @@ class DefaultController extends SuperController
         ->findOne();
 
         if($url){
-            $userRedirects = UsersByIpQuery::create()
-                ->filterByIpAddress($_SERVER['REMOTE_ADDR'])
-                ->filterByUrlId($url->getId())
-            ->findOne();
-            
-            //$userRedirectsCount = (!empty($userRedirects)) ? $userRedirects->getRedirectCount() + 1 : 1;
-            if(!empty($userRedirects)){
-                $userRedirectsCount = $userRedirects->getRedirectCount() + 1;
-            } else {
-                $userRedirects = new UsersByIp();
-                $userRedirects->setUrlId($url->getId());
-                $userRedirects->setIpAddress($_SERVER['REMOTE_ADDR']);
-                $userRedirectsCount = 1;
-            }
-
-            $userRedirects->setLastRedirect('now');
-            $userRedirects->setRedirectCount($userRedirectsCount);
-            $userRedirects->save();
-            
-            $url->setRedirectCount($url->getRedirectCount() + 1);
-            $url->save();
+            $this->recordRedirects($url);
             
             $redirectUrl = $this->get('validation')->prepareUrl($url->getFullUrl());
             header("Location:  $redirectUrl");
@@ -92,25 +78,48 @@ class DefaultController extends SuperController
         return true;
     }
     
+    private function recordRedirects($url)
+    {
+        $userRedirects = UsersByIpQuery::create()
+            ->filterByIpAddress($this->getClientIp())
+            ->filterByUrlId($url->getId())
+        ->findOne();
+        
+        if(!empty($userRedirects)){
+            $userRedirectsCount = $userRedirects->getRedirectCount() + 1;
+        } else {
+            $userRedirects = new UsersByIp();
+            $userRedirects->setUrlId($url->getId());
+            $userRedirects->setIpAddress($this->getClientIp());
+            $userRedirectsCount = 1;
+        }
+
+        $userRedirects->setLastRedirect('now');
+        $userRedirects->setRedirectCount($userRedirectsCount);
+        $userRedirects->save();
+        
+        $url->setRedirectCount($url->getRedirectCount() + 1);
+        $url->save();
+    }
+    
     private function insertUrl($url)
     {
         $validation = $this->get('validation');
-
-        if(!$validation->isValidateUrl($url)){ // || !$validation->isValidDns($url)
-            $this->get('session')->getFlashBag()->add('notice','This Url is Invalid');
-die;
-            return false;
-        }
         
         $check = UrlsQuery::create()
-            ->filterByFullUrl($url)
+            ->filterByFullUrl($validation->sanitizeInput($url))
         ->findOne();
         
         if($check){
             $viewUrlCode = $check->getUrlCode();
             
-            //return $this->redirect($this->generateUrl('unleashed_view', array('urlCode' => $check->getUrlCode())));
         } else{
+
+            if(!$validation->isValidateUrl($url) || !$validation->isValidDns($url)){ 
+                $this->get('session')->getFlashBag()->add('notice','This Url is Invalid');
+    
+                return false;
+            }
             
             $urlcode = $this->get('shorten_url')->getShortUrl();
            
@@ -122,8 +131,6 @@ die;
             $newUrl->save();
             
             $viewUrlCode = $newUrl->getUrlCode();
-            
-            //return $this->redirect($this->generateUrl('unleashed_view', array('urlCode' => $newUrl->getUrlCode())));
         }
         
         return $viewUrlCode;

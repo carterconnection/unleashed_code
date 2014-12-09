@@ -10,12 +10,16 @@ use \Exception;
 use \PDO;
 use \Persistent;
 use \Propel;
+use \PropelCollection;
 use \PropelDateTime;
 use \PropelException;
+use \PropelObjectCollection;
 use \PropelPDO;
 use Unleashed\ShortenUrlBundle\Model\Urls;
 use Unleashed\ShortenUrlBundle\Model\UrlsPeer;
 use Unleashed\ShortenUrlBundle\Model\UrlsQuery;
+use Unleashed\ShortenUrlBundle\Model\UsersByIp;
+use Unleashed\ShortenUrlBundle\Model\UsersByIpQuery;
 
 abstract class BaseUrls extends BaseObject implements Persistent
 {
@@ -76,6 +80,12 @@ abstract class BaseUrls extends BaseObject implements Persistent
     protected $qr_code;
 
     /**
+     * @var        PropelObjectCollection|UsersByIp[] Collection to store aggregation of UsersByIp objects.
+     */
+    protected $collUsersByIps;
+    protected $collUsersByIpsPartial;
+
+    /**
      * Flag to prevent endless save loop, if this object is referenced
      * by another object which falls in this transaction.
      * @var        boolean
@@ -94,6 +104,12 @@ abstract class BaseUrls extends BaseObject implements Persistent
      * @var        boolean
      */
     protected $alreadyInClearAllReferencesDeep = false;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var		PropelObjectCollection
+     */
+    protected $usersByIpsScheduledForDeletion = null;
 
     /**
      * Applies default values to this object.
@@ -452,6 +468,8 @@ abstract class BaseUrls extends BaseObject implements Persistent
 
         if ($deep) {  // also de-associate any related objects?
 
+            $this->collUsersByIps = null;
+
         } // if (deep)
     }
 
@@ -574,6 +592,23 @@ abstract class BaseUrls extends BaseObject implements Persistent
                 }
                 $affectedRows += 1;
                 $this->resetModified();
+            }
+
+            if ($this->usersByIpsScheduledForDeletion !== null) {
+                if (!$this->usersByIpsScheduledForDeletion->isEmpty()) {
+                    UsersByIpQuery::create()
+                        ->filterByPrimaryKeys($this->usersByIpsScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
+                    $this->usersByIpsScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collUsersByIps !== null) {
+                foreach ($this->collUsersByIps as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
             }
 
             $this->alreadyInSave = false;
@@ -748,6 +783,14 @@ abstract class BaseUrls extends BaseObject implements Persistent
             }
 
 
+                if ($this->collUsersByIps !== null) {
+                    foreach ($this->collUsersByIps as $referrerFK) {
+                        if (!$referrerFK->validate($columns)) {
+                            $failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
+                        }
+                    }
+                }
+
 
             $this->alreadyInValidation = false;
         }
@@ -818,10 +861,11 @@ abstract class BaseUrls extends BaseObject implements Persistent
      *                    Defaults to BasePeer::TYPE_PHPNAME.
      * @param     boolean $includeLazyLoadColumns (optional) Whether to include lazy loaded columns. Defaults to true.
      * @param     array $alreadyDumpedObjects List of objects to skip to avoid recursion
+     * @param     boolean $includeForeignObjects (optional) Whether to include hydrated related objects. Default to FALSE.
      *
      * @return array an associative array containing the field names (as keys) and field values
      */
-    public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array())
+    public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
         if (isset($alreadyDumpedObjects['Urls'][$this->getPrimaryKey()])) {
             return '*RECURSION*';
@@ -841,6 +885,11 @@ abstract class BaseUrls extends BaseObject implements Persistent
             $result[$key] = $virtualColumn;
         }
 
+        if ($includeForeignObjects) {
+            if (null !== $this->collUsersByIps) {
+                $result['UsersByIps'] = $this->collUsersByIps->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            }
+        }
 
         return $result;
     }
@@ -1007,6 +1056,24 @@ abstract class BaseUrls extends BaseObject implements Persistent
         $copyObj->setDateAdded($this->getDateAdded());
         $copyObj->setRedirectCount($this->getRedirectCount());
         $copyObj->setQrCode($this->getQrCode());
+
+        if ($deepCopy && !$this->startCopy) {
+            // important: temporarily setNew(false) because this affects the behavior of
+            // the getter/setter methods for fkey referrer objects.
+            $copyObj->setNew(false);
+            // store object hash to prevent cycle
+            $this->startCopy = true;
+
+            foreach ($this->getUsersByIps() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addUsersByIp($relObj->copy($deepCopy));
+                }
+            }
+
+            //unflag object copy
+            $this->startCopy = false;
+        } // if ($deepCopy)
+
         if ($makeNew) {
             $copyObj->setNew(true);
             $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
@@ -1053,6 +1120,247 @@ abstract class BaseUrls extends BaseObject implements Persistent
         return self::$peer;
     }
 
+
+    /**
+     * Initializes a collection based on the name of a relation.
+     * Avoids crafting an 'init[$relationName]s' method name
+     * that wouldn't work when StandardEnglishPluralizer is used.
+     *
+     * @param string $relationName The name of the relation to initialize
+     * @return void
+     */
+    public function initRelation($relationName)
+    {
+        if ('UsersByIp' == $relationName) {
+            $this->initUsersByIps();
+        }
+    }
+
+    /**
+     * Clears out the collUsersByIps collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return Urls The current object (for fluent API support)
+     * @see        addUsersByIps()
+     */
+    public function clearUsersByIps()
+    {
+        $this->collUsersByIps = null; // important to set this to null since that means it is uninitialized
+        $this->collUsersByIpsPartial = null;
+
+        return $this;
+    }
+
+    /**
+     * reset is the collUsersByIps collection loaded partially
+     *
+     * @return void
+     */
+    public function resetPartialUsersByIps($v = true)
+    {
+        $this->collUsersByIpsPartial = $v;
+    }
+
+    /**
+     * Initializes the collUsersByIps collection.
+     *
+     * By default this just sets the collUsersByIps collection to an empty array (like clearcollUsersByIps());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initUsersByIps($overrideExisting = true)
+    {
+        if (null !== $this->collUsersByIps && !$overrideExisting) {
+            return;
+        }
+        $this->collUsersByIps = new PropelObjectCollection();
+        $this->collUsersByIps->setModel('UsersByIp');
+    }
+
+    /**
+     * Gets an array of UsersByIp objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this Urls is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param Criteria $criteria optional Criteria object to narrow the query
+     * @param PropelPDO $con optional connection object
+     * @return PropelObjectCollection|UsersByIp[] List of UsersByIp objects
+     * @throws PropelException
+     */
+    public function getUsersByIps($criteria = null, PropelPDO $con = null)
+    {
+        $partial = $this->collUsersByIpsPartial && !$this->isNew();
+        if (null === $this->collUsersByIps || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collUsersByIps) {
+                // return empty collection
+                $this->initUsersByIps();
+            } else {
+                $collUsersByIps = UsersByIpQuery::create(null, $criteria)
+                    ->filterByUrls($this)
+                    ->find($con);
+                if (null !== $criteria) {
+                    if (false !== $this->collUsersByIpsPartial && count($collUsersByIps)) {
+                      $this->initUsersByIps(false);
+
+                      foreach ($collUsersByIps as $obj) {
+                        if (false == $this->collUsersByIps->contains($obj)) {
+                          $this->collUsersByIps->append($obj);
+                        }
+                      }
+
+                      $this->collUsersByIpsPartial = true;
+                    }
+
+                    $collUsersByIps->getInternalIterator()->rewind();
+
+                    return $collUsersByIps;
+                }
+
+                if ($partial && $this->collUsersByIps) {
+                    foreach ($this->collUsersByIps as $obj) {
+                        if ($obj->isNew()) {
+                            $collUsersByIps[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collUsersByIps = $collUsersByIps;
+                $this->collUsersByIpsPartial = false;
+            }
+        }
+
+        return $this->collUsersByIps;
+    }
+
+    /**
+     * Sets a collection of UsersByIp objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param PropelCollection $usersByIps A Propel collection.
+     * @param PropelPDO $con Optional connection object
+     * @return Urls The current object (for fluent API support)
+     */
+    public function setUsersByIps(PropelCollection $usersByIps, PropelPDO $con = null)
+    {
+        $usersByIpsToDelete = $this->getUsersByIps(new Criteria(), $con)->diff($usersByIps);
+
+
+        $this->usersByIpsScheduledForDeletion = $usersByIpsToDelete;
+
+        foreach ($usersByIpsToDelete as $usersByIpRemoved) {
+            $usersByIpRemoved->setUrls(null);
+        }
+
+        $this->collUsersByIps = null;
+        foreach ($usersByIps as $usersByIp) {
+            $this->addUsersByIp($usersByIp);
+        }
+
+        $this->collUsersByIps = $usersByIps;
+        $this->collUsersByIpsPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related UsersByIp objects.
+     *
+     * @param Criteria $criteria
+     * @param boolean $distinct
+     * @param PropelPDO $con
+     * @return int             Count of related UsersByIp objects.
+     * @throws PropelException
+     */
+    public function countUsersByIps(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
+    {
+        $partial = $this->collUsersByIpsPartial && !$this->isNew();
+        if (null === $this->collUsersByIps || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collUsersByIps) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getUsersByIps());
+            }
+            $query = UsersByIpQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByUrls($this)
+                ->count($con);
+        }
+
+        return count($this->collUsersByIps);
+    }
+
+    /**
+     * Method called to associate a UsersByIp object to this object
+     * through the UsersByIp foreign key attribute.
+     *
+     * @param    UsersByIp $l UsersByIp
+     * @return Urls The current object (for fluent API support)
+     */
+    public function addUsersByIp(UsersByIp $l)
+    {
+        if ($this->collUsersByIps === null) {
+            $this->initUsersByIps();
+            $this->collUsersByIpsPartial = true;
+        }
+
+        if (!in_array($l, $this->collUsersByIps->getArrayCopy(), true)) { // only add it if the **same** object is not already associated
+            $this->doAddUsersByIp($l);
+
+            if ($this->usersByIpsScheduledForDeletion and $this->usersByIpsScheduledForDeletion->contains($l)) {
+                $this->usersByIpsScheduledForDeletion->remove($this->usersByIpsScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param	UsersByIp $usersByIp The usersByIp object to add.
+     */
+    protected function doAddUsersByIp($usersByIp)
+    {
+        $this->collUsersByIps[]= $usersByIp;
+        $usersByIp->setUrls($this);
+    }
+
+    /**
+     * @param	UsersByIp $usersByIp The usersByIp object to remove.
+     * @return Urls The current object (for fluent API support)
+     */
+    public function removeUsersByIp($usersByIp)
+    {
+        if ($this->getUsersByIps()->contains($usersByIp)) {
+            $this->collUsersByIps->remove($this->collUsersByIps->search($usersByIp));
+            if (null === $this->usersByIpsScheduledForDeletion) {
+                $this->usersByIpsScheduledForDeletion = clone $this->collUsersByIps;
+                $this->usersByIpsScheduledForDeletion->clear();
+            }
+            $this->usersByIpsScheduledForDeletion[]= clone $usersByIp;
+            $usersByIp->setUrls(null);
+        }
+
+        return $this;
+    }
+
     /**
      * Clears the current object and sets all attributes to their default values
      */
@@ -1087,10 +1395,19 @@ abstract class BaseUrls extends BaseObject implements Persistent
     {
         if ($deep && !$this->alreadyInClearAllReferencesDeep) {
             $this->alreadyInClearAllReferencesDeep = true;
+            if ($this->collUsersByIps) {
+                foreach ($this->collUsersByIps as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
 
             $this->alreadyInClearAllReferencesDeep = false;
         } // if ($deep)
 
+        if ($this->collUsersByIps instanceof PropelCollection) {
+            $this->collUsersByIps->clearIterator();
+        }
+        $this->collUsersByIps = null;
     }
 
     /**

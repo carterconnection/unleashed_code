@@ -5,14 +5,17 @@ namespace Unleashed\ShortenUrlBundle\Model\om;
 use \Criteria;
 use \Exception;
 use \ModelCriteria;
+use \ModelJoin;
 use \PDO;
 use \Propel;
+use \PropelCollection;
 use \PropelException;
 use \PropelObjectCollection;
 use \PropelPDO;
 use Unleashed\ShortenUrlBundle\Model\Urls;
 use Unleashed\ShortenUrlBundle\Model\UrlsPeer;
 use Unleashed\ShortenUrlBundle\Model\UrlsQuery;
+use Unleashed\ShortenUrlBundle\Model\UsersByIp;
 
 /**
  * @method UrlsQuery orderById($order = Criteria::ASC) Order by the id column
@@ -32,6 +35,10 @@ use Unleashed\ShortenUrlBundle\Model\UrlsQuery;
  * @method UrlsQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method UrlsQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
  * @method UrlsQuery innerJoin($relation) Adds a INNER JOIN clause to the query
+ *
+ * @method UrlsQuery leftJoinUsersByIp($relationAlias = null) Adds a LEFT JOIN clause to the query using the UsersByIp relation
+ * @method UrlsQuery rightJoinUsersByIp($relationAlias = null) Adds a RIGHT JOIN clause to the query using the UsersByIp relation
+ * @method UrlsQuery innerJoinUsersByIp($relationAlias = null) Adds a INNER JOIN clause to the query using the UsersByIp relation
  *
  * @method Urls findOne(PropelPDO $con = null) Return the first Urls matching the query
  * @method Urls findOneOrCreate(PropelPDO $con = null) Return the first Urls matching the query, or a new Urls object populated from the query conditions when no match is found
@@ -454,6 +461,80 @@ abstract class BaseUrlsQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(UrlsPeer::QR_CODE, $qrCode, $comparison);
+    }
+
+    /**
+     * Filter the query by a related UsersByIp object
+     *
+     * @param   UsersByIp|PropelObjectCollection $usersByIp  the related object to use as filter
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return                 UrlsQuery The current query, for fluid interface
+     * @throws PropelException - if the provided filter is invalid.
+     */
+    public function filterByUsersByIp($usersByIp, $comparison = null)
+    {
+        if ($usersByIp instanceof UsersByIp) {
+            return $this
+                ->addUsingAlias(UrlsPeer::ID, $usersByIp->getUrlId(), $comparison);
+        } elseif ($usersByIp instanceof PropelObjectCollection) {
+            return $this
+                ->useUsersByIpQuery()
+                ->filterByPrimaryKeys($usersByIp->getPrimaryKeys())
+                ->endUse();
+        } else {
+            throw new PropelException('filterByUsersByIp() only accepts arguments of type UsersByIp or PropelCollection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the UsersByIp relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return UrlsQuery The current query, for fluid interface
+     */
+    public function joinUsersByIp($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('UsersByIp');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'UsersByIp');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the UsersByIp relation UsersByIp object
+     *
+     * @see       useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return   \Unleashed\ShortenUrlBundle\Model\UsersByIpQuery A secondary query class using the current class as primary query
+     */
+    public function useUsersByIpQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinUsersByIp($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'UsersByIp', '\Unleashed\ShortenUrlBundle\Model\UsersByIpQuery');
     }
 
     /**

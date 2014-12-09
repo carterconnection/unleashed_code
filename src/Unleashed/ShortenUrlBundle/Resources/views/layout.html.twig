@@ -21,7 +21,8 @@ License URL: http://creativecommons.org/licenses/by/3.0/
         
         <style>
             body{
-                background:url({{ asset('images/bg.jpg', absolute=true) }}) no-repeat center fixed;
+                background:url(http://w3layouts.com/demos/batman_login_form/web/images/bg.jpg) no-repeat center fixed;
+				background-size: 100% 100%;
             }
         </style>
     
@@ -36,7 +37,7 @@ License URL: http://creativecommons.org/licenses/by/3.0/
 </head>
  
 <body>
-	<div class="main">
+	<div id="container">
 		
         {% block content %}{% endblock %}
         

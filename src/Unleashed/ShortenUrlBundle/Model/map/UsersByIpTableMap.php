@@ -44,7 +44,7 @@ class UsersByIpTableMap extends TableMap
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addColumn('ip_address', 'IpAddress', 'VARCHAR', true, 15, null);
-        $this->addColumn('url_id', 'UrlId', 'INTEGER', true, null, null);
+        $this->addForeignKey('url_id', 'UrlId', 'INTEGER', 'urls', 'id', true, null, null);
         $this->addColumn('cookie', 'Cookie', 'INTEGER', false, null, null);
         $this->addColumn('last_redirect', 'LastRedirect', 'TIMESTAMP', true, null, null);
         $this->addColumn('redirect_count', 'RedirectCount', 'INTEGER', true, null, null);
@@ -56,6 +56,7 @@ class UsersByIpTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('Urls', 'Unleashed\\ShortenUrlBundle\\Model\\Urls', RelationMap::MANY_TO_ONE, array('url_id' => 'id', ), null, null);
     } // buildRelations()
 
 } // UsersByIpTableMap

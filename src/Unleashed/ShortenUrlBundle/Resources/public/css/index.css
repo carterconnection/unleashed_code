@@ -314,3 +314,16 @@ input[type=submit]:hover {
 }
 
 /*----//end-responsive design-----*/
+
+#container {
+	width: 100%;
+	position: relative;
+}
+
+.flash {
+	width: 50%;
+	font-size: 19px;
+	color: #ff0000;
+	float: left;
+	padding: 0 0 0 20px;
+}

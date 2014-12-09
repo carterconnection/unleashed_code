@@ -15,11 +15,11 @@ class ValidationService
     
     public function isValidDns($url)
     {
-        // checkdnsrr doesnt like protocol - so remove it
-        $remove = array('https://', 'http://');
-        $url = str_replace($remove, '', $url);
+        $url = $this->prepareUrl($url);
         
-        $isValid = checkdnsrr($url, 'A');
+        $parsed = parse_url($url);
+        
+        $isValid = checkdnsrr($parsed['host'], 'A');
         
         return $isValid;
     }

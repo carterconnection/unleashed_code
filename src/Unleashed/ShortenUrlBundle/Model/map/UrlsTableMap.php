@@ -56,6 +56,7 @@ class UrlsTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('UsersByIp', 'Unleashed\\ShortenUrlBundle\\Model\\UsersByIp', RelationMap::ONE_TO_MANY, array('id' => 'url_id', ), null, null, 'UsersByIps');
     } // buildRelations()
 
 } // UrlsTableMap

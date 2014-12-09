@@ -20,5 +20,8 @@
         <column name="cookie" phpName="Cookie" type="INTEGER" required="false"/>
         <column name="last_redirect" phpName="LastRedirect" type="TIMESTAMP" required="true"/>
         <column name="redirect_count" phpName="RedirectCount" type="INTEGER" required="true"/>
+        <foreign-key foreignTable="urls">
+            <reference local="url_id" foreign="id"/>
+        </foreign-key>
     </table>
 </database>
