@@ -42,6 +42,7 @@ class DefaultController extends SuperController
             ->filterByUrlCode($urlCode)
         ->findOne();
         
+        $data->url->currentUserRedirects = null;
         foreach($data->url->getUsersByIps() as $redirect){
             $data->url->currentUserRedirects = $redirect->getRedirectCount();
         }

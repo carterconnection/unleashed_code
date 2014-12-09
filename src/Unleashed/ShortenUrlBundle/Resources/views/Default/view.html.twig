@@ -1,42 +1,88 @@
 {% extends 'UnleashedShortenUrlBundle::layout.html.twig' %}
 
+{% block title %}View Url - {% endblock %}
+
 {% block styles %}
     {{ parent() }}
-    <style>
-        #view-wrap{
-            width: 50%;
-            margin: 13em auto 0;
-            background: #fff;
-            padding: 20px;
-            border-radius: 7px;
-            -moz-border-radius: 7px;
-            -webkit-border-radius: 7px;
-        }
-        .label {
-            font-weight: 700;
-        }
-    </style>
+
+{% endblock %}
+
+{% block js %}
+    {{ parent() }}
+    
+    {% javascripts
+        '@UnleashedShortenUrlBundle/Resources/public/js/view/app.js'
+        '@UnleashedShortenUrlBundle/Resources/public/js/view/script.js'
+        output = 'js/compiled/view/main.js'
+    %}
+        <script src="{{ asset_url }}" type="text/javascript"></script>
+    {% endjavascripts %}
 {% endblock %}
 
 {% block content %}
     
     <div id="view-wrap">
-        <div>
-            <span class="label">Shortened Url:</span><span>{{ data.shortenedUrl }}</span>
+        <div class="lg-logo">
+            <img src="http://2013.bluedropawards.org/sites/default/files/UTlogo_3.png" alt="Unleashed Technologies" />
         </div>
-        <div>
-            <span class="label">UrlCode:</span><span>{{ data.url.urlCode }}</span>
+
+        <div class="table data url-wrap">
+            <div class="shrink">
+                <div class="row">
+                    <span class="label cell">Your Shortened Url:</span><span class="cell">{{ data.shortenedUrl }}</span>
+                </div>
+                <div class="row">
+                    <span class="label cell">Original Link:</span><span class="cell">{{ data.url.fullUrl }}</span>
+                </div>
+                <div class="row">
+                    <span class="label cell">Short Code:</span><span class="cell">{{ data.url.urlCode }}</span>
+                </div>
+                <div class="row">
+                    <span class="label cell">Date Created:</span><span class="cell">{{ data.url.dateAdded|date('Y-m-d') }}</span>
+                </div>
+            </div>
         </div>
-        <div>
-            <span class="label">Link:</span><span>{{ data.url.fullUrl }}</span>
+        
+        <div id="qr-wrap">
+            <div>
+                
+            </div>
+            <div class="pull-left qr-label">
+                <span class="label cell">Qr Code: </span>
+            </div>
+            
+            <div class="cell pull-left">
+                <img alt="{{ data.shortenedUrl }}"src="{{ qrcode_data_uri('{{ data.shortenedUrl }}', size=200, padding=10) }}" />                    
+            </div>
+            <div class="clear"></div>
         </div>
-        <div>
-            <span class="label">Date:</span><span>{{ data.url.dateAdded|date('Y-m-d') }}</span>
+        
+        <div id="analytics">
+            <div class="table data stats-wrap">
+                <div class="shrink">
+                    <div class="row">
+                        <span class="label cell">Total Redirects:</span><span class="cell">{{ data.url.redirectCount }}</span>
+                    </div>
+                    {% if data.url.currentUserRedirects is not empty %}
+                        <div class="row">
+                            <span class="label cell">Your Redirects:</span><span class="cell">{{ data.url.currentUserRedirects }}</span>
+                        </div>
+                    {% endif %}
+                    <div class="row">
+                        <span class="label cell">Last Redirect:</span>
+                        <span class="cell">
+                            {% if data.url.getUsersByIps[0].lastRedirect is defined %}
+                                {{ data.url.getUsersByIps[0].lastRedirect|date('Y-m-d') }}
+                            {% else %}
+                                <a target="_blank" class="load-redirect" href="{{ data.shortenedUrl }}">Click Here</a> to be the First 
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div>
-            <span class="label">Qr Code: </span>
-            <img alt="{{ data.shortenedUrl }}"src="{{ qrcode_data_uri('{{ data.shortenedUrl }}', size=200, padding=10) }}" />
-        </div>
+        
+        
     </div>
     
 {% endblock %}

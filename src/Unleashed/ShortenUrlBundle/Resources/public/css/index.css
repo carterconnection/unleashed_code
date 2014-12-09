@@ -315,6 +315,20 @@ input[type=submit]:hover {
 
 /*----//end-responsive design-----*/
 
+.table {
+	display: table;
+}
+
+.row {
+	display: table-row;
+	line-height: 30px;
+}
+
+.cell {
+	display: table-cell;
+	padding: 0 15px;
+}
+
 #container {
 	width: 100%;
 	position: relative;
@@ -326,4 +340,67 @@ input[type=submit]:hover {
 	color: #ff0000;
 	float: left;
 	padding: 0 0 0 20px;
+}
+
+#view-wrap{
+	width: 50%;
+	margin: 7em auto 0;
+	background: #fff;
+	padding: 20px;
+	border-radius: 7px;
+	-moz-border-radius: 7px;
+	-webkit-border-radius: 7px;
+}
+.label {
+	font-weight: 700;
+}
+.pull-left {
+	float: left;
+}
+
+#qr-wrap {
+	width: 50%;
+	position: relative;
+	margin: 20px auto 10px auto;
+}
+
+.qr-label {
+	line-height: 150px;
+}
+
+.lg-logo {
+	width: 100%;
+	margin: 0 0 30px 0;
+}
+
+.lg-logo img {
+	margin: 0 auto;
+	width: 50%;
+	display: inherit;
+}
+
+.data {
+	width: 85%;
+	margin: 25px auto;
+}
+
+.url-wrap {
+	border-bottom: 1px solid #ccc;
+	padding-bottom: 25px;
+	margin-top: 37px;
+}
+
+.stats-wrap {
+	border-top: 1px solid #ccc;
+	padding: 25px 0;
+}
+
+.shrink {
+	width: 58%;
+	text-align: center;
+	margin: 0 auto;
+}
+
+.url-wrap .shrink {
+	width: 100% !important;
 }

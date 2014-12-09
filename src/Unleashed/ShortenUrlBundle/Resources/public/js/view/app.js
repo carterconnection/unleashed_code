@@ -1,0 +1,9 @@
+var viewApp = {
+    
+    reloadStats: function(){
+        
+        
+        
+    }
+    
+};
