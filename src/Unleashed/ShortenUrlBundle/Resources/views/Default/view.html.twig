@@ -4,13 +4,20 @@
     
     <div>
         <div>
-            <span>Url: {{ data.url.urlCode }}</span>
+            <span>Shortened Url: {{ data.shortenedUrl }}</span>
+        </div>
+        <div>
+            <span>UrlCode: {{ data.url.urlCode }}</span>
         </div>
         <div>
             <span>Link: {{ data.url.fullUrl }}</span>
         </div>
         <div>
             <span>Date: {{ data.url.dateAdded|date('Y-m-d') }}</span>
+        </div>
+        <div>
+            <span>Qr Code: </span>
+            <img alt="{{ data.shortenedUrl }}"src="{{ qrcode_data_uri('{{ data.shortenedUrl }}', size=200, padding=10) }}" />
         </div>
     </div>
     

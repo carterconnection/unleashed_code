@@ -34,9 +34,11 @@ class DefaultController extends SuperController
     public function viewAction(Request $request, $urlCode)
     {
         $data = new \stdClass();
+        
         $data->url = UrlsQuery::create()
             ->filterByUrlCode($urlCode)
         ->findOne();
+        $data->shortenedUrl = $this->generateUrl('unleashed_view', array('urlCode' => $data->url->getUrlCode()), true);
 //$this->pre($data);die;
         return $this->render(
             'UnleashedShortenUrlBundle:Default:view.html.twig'
