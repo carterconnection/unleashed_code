@@ -31,7 +31,7 @@ img{max-width:100%;}
 
 body {
 	font-family: 'Open Sans', sans-serif;
- 	background:url(../images/bg.jpg) no-repeat center fixed;
+ 	/*background:url(../../../images/bg.jpg) no-repeat center fixed;*/
     -webkit-background-size: cover;
 	-moz-background-size: cover;
 	-o-background-size: cover;
