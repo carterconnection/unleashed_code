@@ -3,19 +3,29 @@
 {% block content %}
     
     <div>
-        <form action="" method="post">
-    		<h1><span>Shorten</span> <lable> Url </lable> </h1>
-  			<div class="inset">
-	  			<p>
-                    <!--<label for="email">EMAIL ADDRESS</label>-->
-                    <input type="text" id="" name="" placeholder="Shorten Your Url" required/>
-				</p>
- 			 </div>
- 	 
-			  <p class="p-container">
-			    <input type="submit" value="Submit">
-			  </p>
-		</form>
+        <div>
+            {% for flashMessage in app.session.flashbag.get('notice') %}
+                <div class="flash notice">
+                    {{ flashMessage }}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div>
+            <form action="{{ path('unleashed_homepage') }}" method="post">
+                <h1><span>Shorten</span> <lable> Url </lable> </h1>
+                <div class="inset">
+                    <p>
+                        <!--<label for="email">EMAIL ADDRESS</label>-->
+                        <input type="text" id="url" name="url" placeholder="Shorten Your Url" required/>
+                    </p>
+                 </div>
+         
+                  <p class="p-container">
+                    <input type="submit" value="Submit">
+                  </p>
+            </form>
+        </div>
     </div>
     
 {% endblock %}

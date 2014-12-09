@@ -15,12 +15,18 @@ class DefaultController extends SuperController
 {
     public function indexAction(Request $request)
     {
-        $urlcode = $this->get('shorten_url')->getShortUrl();
-$this->pre($urlcode);die;
+        if($request->getMethod() == 'POST'){
+            $url = $request->request->get('url', null);
+            $this->insertUrl($url);
+            
+//$this->pre($this->insertUrl());die;
+        }
+        
+        
         return $this->render(
             'UnleashedShortenUrlBundle:Default:index.html.twig'
             , array(
-                'name' => $name
+                
             )
         );
     }
@@ -45,5 +51,34 @@ $this->pre($urlcode);die;
     public function downloadAction(Request $request)
     {
         return true;
+    }
+    
+    private function insertUrl($url)
+    {
+        $validation = $this->get('validation');
+
+        if(!$validation->isValidateUrl($url) || !$validation->isValidDns($url)){
+            $this->get('session')->getFlashBag()->add('notice','This Url is Invalid');
+            
+            return false;
+        }
+        
+        $check = UrlsQuery::create()
+            ->filterByFullUrl($url)
+        ->findOne();
+        
+        if($check){
+            $this->redirect($this->generateUrl('unleashed_view', array('urlCode' => $check->getUrlCode())));
+        }
+        
+        $urlcode = $this->get('shorten_url')->getShortUrl();
+            
+        $newUrl = new Urls();
+        $newUrl->setFullUrl($validation->sanitizeInput($url));
+        $newUrl->setUrlCode($urlcode);
+        $newUrl->setDateAdded('now');
+        $newUrl->setQrCode(null);
+        
+        return $urlcode;
     }
 }
