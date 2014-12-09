@@ -29,10 +29,12 @@
         <div class="table data url-wrap">
             <div class="shrink">
                 <div class="row">
-                    <span class="label cell">Your Shortened Url:</span><span class="cell">{{ data.shortenedUrl }}</span>
+                    <span class="label cell">Your Shortened Url:</span>
+                    <span class="cell">
+                        <a target="_blank" class="load-redirect" href="{{ data.shortenedUrl }}">{{ data.shortenedUrl|slice(0, 60) }}</a></span>
                 </div>
                 <div class="row">
-                    <span class="label cell">Original Link:</span><span class="cell">{{ data.url.fullUrl }}</span>
+                    <span class="label cell">Original Link:</span><span class="cell">{{ data.url.fullUrl|slice(0, 60) }}{% if data.url.fullUrl|length > 60 %}...{% endif %}</span>
                 </div>
                 <div class="row">
                     <span class="label cell">Short Code:</span><span class="cell">{{ data.url.urlCode }}</span>
@@ -52,7 +54,9 @@
             </div>
 
             <div class="cell pull-left">
-                <img alt="{{ data.shortenedUrl }}"src="{{ qrcode_data_uri('{{ data.shortenedUrl }}', size=200, padding=10) }}" />                    
+                <a target="_blank" class="load-redirect" href="{{ data.shortenedUrl }}">
+                    <img alt="{{ data.shortenedUrl }}"src="{{ qrcode_data_uri('{{ data.shortenedUrl }}', size=200, padding=10) }}" />
+                </a>
             </div>
             <div class="clear"></div>
         </div>
@@ -63,7 +67,7 @@
                     <div class="row">
                         <span class="label cell">Total Redirects:</span><span class="cell">{{ data.url.redirectCount }}</span>
                     </div>
-                    {% if data.url.currentUserRedirects is not empty %}
+                    {% if data.url.currentUserRedirects is not empty and data.url.currentUserRedirects > 0 %}
                         <div class="row">
                             <span class="label cell">Your Redirects:</span><span class="cell">{{ data.url.currentUserRedirects }}</span>
                         </div>
@@ -71,7 +75,7 @@
                     <div class="row">
                         <span class="label cell">Last Redirect:</span>
                         <span class="cell">
-                            {% if data.url.getUsersByIps[0].lastRedirect is defined %}
+                            {% if data.url.getUsersByIps[0].lastRedirect is defined and data.url.getUsersByIps[0].lastRedirect is not empty %}
                                 {{ data.url.getUsersByIps[0].lastRedirect|date('Y-m-d') }}
                             {% else %}
                                 <a target="_blank" class="load-redirect" href="{{ data.shortenedUrl }}">Click Here</a> to be the First 

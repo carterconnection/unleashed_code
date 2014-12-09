@@ -4,40 +4,56 @@ namespace Unleashed\ShortenUrlBundle\Services;
 
 class ValidationService
 {
-    public function isValidateUrl($url)
+    private $url;
+    private $isValidDns = false;
+    private $isValidUrl = false;
+
+    public function validateUrl()
     {
-        $this->prepareUrl($url);
-        
-        $isValid = filter_var($url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED | FILTER_FLAG_HOST_REQUIRED);
-        
-        return $isValid;
+        if(preg_match("/\b(?:(?:https?|ftp):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i",$this->url)) {
+            $this->isValidUrl = true;
+        }
     }
     
-    public function isValidDns($url)
+    public function validateDns()
     {
-        $url = $this->prepareUrl($url);
+        $parsed = parse_url($this->url);
         
-        $parsed = parse_url($url);
+        if(isset($parsed['host'])){
+            $this->isValidDns = checkdnsrr($parsed['host'], 'A');    
+        }
         
-        $isValid = checkdnsrr($parsed['host'], 'A');
-        
-        return $isValid;
     }
     
-    public function sanitizeInput($value)
+    public function sanitizeInput($value, $isUrl = false)
     {
-        $cleanData = filter_var($value, FILTER_SANITIZE_URL);
+        $value = strip_tags($value);
+
+        if($isUrl){
+            $cleanData = filter_var($value, FILTER_SANITIZE_URL); 
+        } else {
+            $cleanData = filter_var($value, FILTER_SANITIZE_STRING);
+        }
         
         return $cleanData;
     }
     
     public function prepareUrl($url)
     {
+        $this->url = $this->sanitizeInput($url, true);
+        
         // if protocol is not defined - define it (which it should always be)
-        if((strpos($url, 'http://') !== 0 && strpos($url, 'https://') !== 0)){
-            $url = 'http://'. $url;
+        if((strpos($this->url, 'http://') !== 0 && strpos($this->url, 'https://') !== 0)){
+            $this->url = 'http://'. $this->url;
         }
         
-        return $url;
+        $this->validateUrl();
+        $this->validateDns();
+        
+        if(!$this->isValidUrl || !$this->isValidDns){
+            return false;
+        } else {
+            return $this->url;
+        }
     }
 }

@@ -1,7 +1,7 @@
 services:
     shorten_url:
         class: Unleashed\ShortenUrlBundle\Services\ShortenUrlService
-#        arguments: [@service_id, "plain_value", %parameter%]
+        arguments: [@validation]
 
     validation:
         class: Unleashed\ShortenUrlBundle\Services\ValidationService

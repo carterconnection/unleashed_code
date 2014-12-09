@@ -1,9 +1,19 @@
 {% extends 'UnleashedShortenUrlBundle::layout.html.twig' %}
 
+{% block js %}
+    {{ parent() }}
+    <script>
+        $('#shorten-my-url').on('submit', function(evt){
+            $('#submit').attr('disabled', 'disabled').val('Please Wait...');
+            return;
+        });
+    </script>
+{% endblock %}
+
 {% block content %}
     
     <div class="main">
-        <form action="{{ path('unleashed_homepage') }}" method="post">
+        <form id="shorten-my-url" action="{{ path('unleashed_homepage') }}" method="post">
             <h1><span>Shorten</span> <lable> Url </lable> </h1>
             <div class="inset">
                 <p>
@@ -19,10 +29,12 @@
                 {% endfor %}
                 
                 <p class="p-container">
-                    <input type="submit" value="Submit">
+                    <input id="submit" type="submit" value="Submit">
                 </p>
             </div>
         </form>
     </div>
+    
+    
     
 {% endblock %}

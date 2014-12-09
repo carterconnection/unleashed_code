@@ -6,8 +6,10 @@ var viewApp = {
         };
 
         var page = Routing.generate('unleashed_view', data);
-
-        $('#analytics').load(page + ' .stats-wrap', data);
+        
+        setTimeout(function(){
+            $('#analytics').load(page + ' .stats-wrap', data);
+        }, 2000);
         
     }
     

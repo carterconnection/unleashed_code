@@ -15,6 +15,13 @@ unleashed_redirect:
 unleashed_load_analytics:
     path: /re/analytics
     defaults: { _controller: UnleashedShortenUrlBundle:Auto:loadAnalytics }
+    condition: "context.getMethod() in ['POST', 'GET']"
+    options:
+        expose: true
+        
+unleashed_api_shorturl:
+    path: /g/shorturl
+    defaults: { _controller: UnleashedShortenUrlBundle:Auto:getShortUrl }
     condition: "context.getMethod() in ['POST']"
     options:
         expose: true
