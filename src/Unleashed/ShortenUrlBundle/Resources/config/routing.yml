@@ -1,0 +1,3 @@
+unleashed_shorten_url_homepage:
+    path:     /hello/{name}
+    defaults: { _controller: UnleashedShortenUrlBundle:Default:index }
