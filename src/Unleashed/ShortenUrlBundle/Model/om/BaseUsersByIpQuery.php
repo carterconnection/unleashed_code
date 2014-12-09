@@ -61,7 +61,7 @@ abstract class BaseUsersByIpQuery extends ModelCriteria
     public function __construct($dbName = null, $modelName = null, $modelAlias = null)
     {
         if (null === $dbName) {
-            $dbName = 'unleashed_tech';
+            $dbName = 'default';
         }
         if (null === $modelName) {
             $modelName = 'Unleashed\\ShortenUrlBundle\\Model\\UsersByIp';

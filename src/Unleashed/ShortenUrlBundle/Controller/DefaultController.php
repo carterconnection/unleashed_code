@@ -13,7 +13,7 @@ use Unleashed\ShortenUrlBundle\Model\UserByIpQuery;
 
 class DefaultController extends SuperController
 {
-    public function indexAction(Request $request, $name)
+    public function indexAction(Request $request)
     {
         $urlcode = $this->get('shorten_url')->getShortUrl();
 $this->pre($urlcode);die;
@@ -25,7 +25,7 @@ $this->pre($urlcode);die;
         );
     }
     
-    public function viewAction(Request $request)
+    public function viewAction(Request $request, $urlCode)
     {
         $data = new \stdClass();
         
