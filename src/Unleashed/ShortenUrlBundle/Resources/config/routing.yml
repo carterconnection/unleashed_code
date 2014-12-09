@@ -3,5 +3,9 @@ unleashed_homepage:
     defaults: { _controller: UnleashedShortenUrlBundle:Default:index }
     
 unleashed_view:
-    path:     /{urlCode}
+    path:     /view/{urlCode}
     defaults: { _controller: UnleashedShortenUrlBundle:Default:view }
+    
+unleashed_redirect:
+    path:     /{urlCode}
+    defaults: { _controller: UnleashedShortenUrlBundle:Default:redirect }

@@ -18,10 +18,7 @@ class DefaultController extends SuperController
         if($request->getMethod() == 'POST'){
             $url = $request->request->get('url', null);
             $this->insertUrl($url);
-            
-//$this->pre($this->insertUrl());die;
         }
-        
         
         return $this->render(
             'UnleashedShortenUrlBundle:Default:index.html.twig'
@@ -34,12 +31,13 @@ class DefaultController extends SuperController
     public function viewAction(Request $request, $urlCode)
     {
         $data = new \stdClass();
-        
+
         $data->url = UrlsQuery::create()
             ->filterByUrlCode($urlCode)
         ->findOne();
+
         $data->shortenedUrl = $this->generateUrl('unleashed_view', array('urlCode' => $data->url->getUrlCode()), true);
-//$this->pre($data);die;
+
         return $this->render(
             'UnleashedShortenUrlBundle:Default:view.html.twig'
             , array(
@@ -48,9 +46,23 @@ class DefaultController extends SuperController
         );
     }
     
-    public function redirectAction(Request $request)
+    public function redirectAction(Request $request, $urlCode)
     {
-        return true;
+        $url = UrlsQuery::create()
+            ->filterByUrlCode($urlCode)
+        ->findOne();
+        
+        $userRedirects = UserByIpQuery::create()
+            ->filterByUrlId($url->getId())
+        ->findOne();
+        
+        if($url){
+            $redirectUrl = 'http://' . $url->getFullUrl();
+            header("Location:  $redirectUrl");
+            exit;
+        }
+        
+        return new Response('redirecting...');
     }
     
     public function downloadAction(Request $request)
@@ -73,7 +85,6 @@ class DefaultController extends SuperController
         ->findOne();
         
         if($check){
-//            $this->forward('UnleashedShortenUrlBundle:Default:view');
             $this->redirect($this->generateUrl('unleashed_view', array('urlCode' => $check->getUrlCode())));
         }
         
