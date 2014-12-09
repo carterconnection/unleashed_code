@@ -6,7 +6,7 @@
     <table name="urls" phpName="Urls" idMethod="native">
       <column name="id" phpName="Id" type="INTEGER" primaryKey="true" autoIncrement="true" required="true"/>
       <column name="full_url" phpName="FullUrl" type="VARCHAR" size="350" required="true"/>
-      <column name="shortend_url" phpName="ShortendUrl" type="VARCHAR" size="50" required="true"/>
+      <column name="url_code" phpName="UrlCode" type="VARCHAR" size="10" required="true"/>
       <column name="date_added" phpName="DateAdded" type="TIMESTAMP" required="true"/>
       <column name="redirect_count" phpName="RedirectCount" type="INTEGER" required="true" defaultValue="0"/>
       <column name="qr_code" phpName="QrCode" type="VARCHAR" size="250" required="false"/>

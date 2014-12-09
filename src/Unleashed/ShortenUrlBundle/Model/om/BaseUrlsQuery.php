@@ -17,14 +17,14 @@ use Unleashed\ShortenUrlBundle\Model\UrlsQuery;
 /**
  * @method UrlsQuery orderById($order = Criteria::ASC) Order by the id column
  * @method UrlsQuery orderByFullUrl($order = Criteria::ASC) Order by the full_url column
- * @method UrlsQuery orderByShortendUrl($order = Criteria::ASC) Order by the shortend_url column
+ * @method UrlsQuery orderByUrlCode($order = Criteria::ASC) Order by the url_code column
  * @method UrlsQuery orderByDateAdded($order = Criteria::ASC) Order by the date_added column
  * @method UrlsQuery orderByRedirectCount($order = Criteria::ASC) Order by the redirect_count column
  * @method UrlsQuery orderByQrCode($order = Criteria::ASC) Order by the qr_code column
  *
  * @method UrlsQuery groupById() Group by the id column
  * @method UrlsQuery groupByFullUrl() Group by the full_url column
- * @method UrlsQuery groupByShortendUrl() Group by the shortend_url column
+ * @method UrlsQuery groupByUrlCode() Group by the url_code column
  * @method UrlsQuery groupByDateAdded() Group by the date_added column
  * @method UrlsQuery groupByRedirectCount() Group by the redirect_count column
  * @method UrlsQuery groupByQrCode() Group by the qr_code column
@@ -37,14 +37,14 @@ use Unleashed\ShortenUrlBundle\Model\UrlsQuery;
  * @method Urls findOneOrCreate(PropelPDO $con = null) Return the first Urls matching the query, or a new Urls object populated from the query conditions when no match is found
  *
  * @method Urls findOneByFullUrl(string $full_url) Return the first Urls filtered by the full_url column
- * @method Urls findOneByShortendUrl(string $shortend_url) Return the first Urls filtered by the shortend_url column
+ * @method Urls findOneByUrlCode(string $url_code) Return the first Urls filtered by the url_code column
  * @method Urls findOneByDateAdded(string $date_added) Return the first Urls filtered by the date_added column
  * @method Urls findOneByRedirectCount(int $redirect_count) Return the first Urls filtered by the redirect_count column
  * @method Urls findOneByQrCode(string $qr_code) Return the first Urls filtered by the qr_code column
  *
  * @method array findById(int $id) Return Urls objects filtered by the id column
  * @method array findByFullUrl(string $full_url) Return Urls objects filtered by the full_url column
- * @method array findByShortendUrl(string $shortend_url) Return Urls objects filtered by the shortend_url column
+ * @method array findByUrlCode(string $url_code) Return Urls objects filtered by the url_code column
  * @method array findByDateAdded(string $date_added) Return Urls objects filtered by the date_added column
  * @method array findByRedirectCount(int $redirect_count) Return Urls objects filtered by the redirect_count column
  * @method array findByQrCode(string $qr_code) Return Urls objects filtered by the qr_code column
@@ -153,7 +153,7 @@ abstract class BaseUrlsQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT `id`, `full_url`, `shortend_url`, `date_added`, `redirect_count`, `qr_code` FROM `urls` WHERE `id` = :p0';
+        $sql = 'SELECT `id`, `full_url`, `url_code`, `date_added`, `redirect_count`, `qr_code` FROM `urls` WHERE `id` = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -314,32 +314,32 @@ abstract class BaseUrlsQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query on the shortend_url column
+     * Filter the query on the url_code column
      *
      * Example usage:
      * <code>
-     * $query->filterByShortendUrl('fooValue');   // WHERE shortend_url = 'fooValue'
-     * $query->filterByShortendUrl('%fooValue%'); // WHERE shortend_url LIKE '%fooValue%'
+     * $query->filterByUrlCode('fooValue');   // WHERE url_code = 'fooValue'
+     * $query->filterByUrlCode('%fooValue%'); // WHERE url_code LIKE '%fooValue%'
      * </code>
      *
-     * @param     string $shortendUrl The value to use as filter.
+     * @param     string $urlCode The value to use as filter.
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
      * @return UrlsQuery The current query, for fluid interface
      */
-    public function filterByShortendUrl($shortendUrl = null, $comparison = null)
+    public function filterByUrlCode($urlCode = null, $comparison = null)
     {
         if (null === $comparison) {
-            if (is_array($shortendUrl)) {
+            if (is_array($urlCode)) {
                 $comparison = Criteria::IN;
-            } elseif (preg_match('/[\%\*]/', $shortendUrl)) {
-                $shortendUrl = str_replace('*', '%', $shortendUrl);
+            } elseif (preg_match('/[\%\*]/', $urlCode)) {
+                $urlCode = str_replace('*', '%', $urlCode);
                 $comparison = Criteria::LIKE;
             }
         }
 
-        return $this->addUsingAlias(UrlsPeer::SHORTEND_URL, $shortendUrl, $comparison);
+        return $this->addUsingAlias(UrlsPeer::URL_CODE, $urlCode, $comparison);
     }
 
     /**

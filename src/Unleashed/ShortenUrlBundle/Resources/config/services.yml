@@ -1,4 +1,4 @@
 services:
-#    unleashed_shorten_url.example:
-#        class: Unleashed\ShortenUrlBundle\Example
+    shorten_url:
+        class: Unleashed\ShortenUrlBundle\Services\ShortenUrlService
 #        arguments: [@service_id, "plain_value", %parameter%]

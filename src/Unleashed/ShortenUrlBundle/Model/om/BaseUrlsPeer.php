@@ -43,8 +43,8 @@ abstract class BaseUrlsPeer
     /** the column name for the full_url field */
     const FULL_URL = 'urls.full_url';
 
-    /** the column name for the shortend_url field */
-    const SHORTEND_URL = 'urls.shortend_url';
+    /** the column name for the url_code field */
+    const URL_CODE = 'urls.url_code';
 
     /** the column name for the date_added field */
     const DATE_ADDED = 'urls.date_added';
@@ -74,11 +74,11 @@ abstract class BaseUrlsPeer
      * e.g. UrlsPeer::$fieldNames[UrlsPeer::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        BasePeer::TYPE_PHPNAME => array ('Id', 'FullUrl', 'ShortendUrl', 'DateAdded', 'RedirectCount', 'QrCode', ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'fullUrl', 'shortendUrl', 'dateAdded', 'redirectCount', 'qrCode', ),
-        BasePeer::TYPE_COLNAME => array (UrlsPeer::ID, UrlsPeer::FULL_URL, UrlsPeer::SHORTEND_URL, UrlsPeer::DATE_ADDED, UrlsPeer::REDIRECT_COUNT, UrlsPeer::QR_CODE, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'FULL_URL', 'SHORTEND_URL', 'DATE_ADDED', 'REDIRECT_COUNT', 'QR_CODE', ),
-        BasePeer::TYPE_FIELDNAME => array ('id', 'full_url', 'shortend_url', 'date_added', 'redirect_count', 'qr_code', ),
+        BasePeer::TYPE_PHPNAME => array ('Id', 'FullUrl', 'UrlCode', 'DateAdded', 'RedirectCount', 'QrCode', ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'fullUrl', 'urlCode', 'dateAdded', 'redirectCount', 'qrCode', ),
+        BasePeer::TYPE_COLNAME => array (UrlsPeer::ID, UrlsPeer::FULL_URL, UrlsPeer::URL_CODE, UrlsPeer::DATE_ADDED, UrlsPeer::REDIRECT_COUNT, UrlsPeer::QR_CODE, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'FULL_URL', 'URL_CODE', 'DATE_ADDED', 'REDIRECT_COUNT', 'QR_CODE', ),
+        BasePeer::TYPE_FIELDNAME => array ('id', 'full_url', 'url_code', 'date_added', 'redirect_count', 'qr_code', ),
         BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, )
     );
 
@@ -89,11 +89,11 @@ abstract class BaseUrlsPeer
      * e.g. UrlsPeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'FullUrl' => 1, 'ShortendUrl' => 2, 'DateAdded' => 3, 'RedirectCount' => 4, 'QrCode' => 5, ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'fullUrl' => 1, 'shortendUrl' => 2, 'dateAdded' => 3, 'redirectCount' => 4, 'qrCode' => 5, ),
-        BasePeer::TYPE_COLNAME => array (UrlsPeer::ID => 0, UrlsPeer::FULL_URL => 1, UrlsPeer::SHORTEND_URL => 2, UrlsPeer::DATE_ADDED => 3, UrlsPeer::REDIRECT_COUNT => 4, UrlsPeer::QR_CODE => 5, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'FULL_URL' => 1, 'SHORTEND_URL' => 2, 'DATE_ADDED' => 3, 'REDIRECT_COUNT' => 4, 'QR_CODE' => 5, ),
-        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'full_url' => 1, 'shortend_url' => 2, 'date_added' => 3, 'redirect_count' => 4, 'qr_code' => 5, ),
+        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'FullUrl' => 1, 'UrlCode' => 2, 'DateAdded' => 3, 'RedirectCount' => 4, 'QrCode' => 5, ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'fullUrl' => 1, 'urlCode' => 2, 'dateAdded' => 3, 'redirectCount' => 4, 'qrCode' => 5, ),
+        BasePeer::TYPE_COLNAME => array (UrlsPeer::ID => 0, UrlsPeer::FULL_URL => 1, UrlsPeer::URL_CODE => 2, UrlsPeer::DATE_ADDED => 3, UrlsPeer::REDIRECT_COUNT => 4, UrlsPeer::QR_CODE => 5, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'FULL_URL' => 1, 'URL_CODE' => 2, 'DATE_ADDED' => 3, 'REDIRECT_COUNT' => 4, 'QR_CODE' => 5, ),
+        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'full_url' => 1, 'url_code' => 2, 'date_added' => 3, 'redirect_count' => 4, 'qr_code' => 5, ),
         BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, )
     );
 
@@ -170,14 +170,14 @@ abstract class BaseUrlsPeer
         if (null === $alias) {
             $criteria->addSelectColumn(UrlsPeer::ID);
             $criteria->addSelectColumn(UrlsPeer::FULL_URL);
-            $criteria->addSelectColumn(UrlsPeer::SHORTEND_URL);
+            $criteria->addSelectColumn(UrlsPeer::URL_CODE);
             $criteria->addSelectColumn(UrlsPeer::DATE_ADDED);
             $criteria->addSelectColumn(UrlsPeer::REDIRECT_COUNT);
             $criteria->addSelectColumn(UrlsPeer::QR_CODE);
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.full_url');
-            $criteria->addSelectColumn($alias . '.shortend_url');
+            $criteria->addSelectColumn($alias . '.url_code');
             $criteria->addSelectColumn($alias . '.date_added');
             $criteria->addSelectColumn($alias . '.redirect_count');
             $criteria->addSelectColumn($alias . '.qr_code');

@@ -15,6 +15,8 @@ class DefaultController extends SuperController
 {
     public function indexAction(Request $request, $name)
     {
+        $urlcode = $this->get('shorten_url')->getShortUrl();
+$this->pre($urlcode);die;
         return $this->render(
             'UnleashedShortenUrlBundle:Default:index.html.twig'
             , array(

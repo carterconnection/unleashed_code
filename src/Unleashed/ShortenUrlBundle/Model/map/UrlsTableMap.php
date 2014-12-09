@@ -44,7 +44,7 @@ class UrlsTableMap extends TableMap
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, null, null);
         $this->addColumn('full_url', 'FullUrl', 'VARCHAR', true, 350, null);
-        $this->addColumn('shortend_url', 'ShortendUrl', 'VARCHAR', true, 50, null);
+        $this->addColumn('url_code', 'UrlCode', 'VARCHAR', true, 10, null);
         $this->addColumn('date_added', 'DateAdded', 'TIMESTAMP', true, null, null);
         $this->addColumn('redirect_count', 'RedirectCount', 'INTEGER', true, null, 0);
         $this->addColumn('qr_code', 'QrCode', 'VARCHAR', false, 250, null);

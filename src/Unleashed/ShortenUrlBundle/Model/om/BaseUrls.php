@@ -51,10 +51,10 @@ abstract class BaseUrls extends BaseObject implements Persistent
     protected $full_url;
 
     /**
-     * The value for the shortend_url field.
+     * The value for the url_code field.
      * @var        string
      */
-    protected $shortend_url;
+    protected $url_code;
 
     /**
      * The value for the date_added field.
@@ -139,14 +139,14 @@ abstract class BaseUrls extends BaseObject implements Persistent
     }
 
     /**
-     * Get the [shortend_url] column value.
+     * Get the [url_code] column value.
      *
      * @return string
      */
-    public function getShortendUrl()
+    public function getUrlCode()
     {
 
-        return $this->shortend_url;
+        return $this->url_code;
     }
 
     /**
@@ -254,25 +254,25 @@ abstract class BaseUrls extends BaseObject implements Persistent
     } // setFullUrl()
 
     /**
-     * Set the value of [shortend_url] column.
+     * Set the value of [url_code] column.
      *
      * @param  string $v new value
      * @return Urls The current object (for fluent API support)
      */
-    public function setShortendUrl($v)
+    public function setUrlCode($v)
     {
         if ($v !== null) {
             $v = (string) $v;
         }
 
-        if ($this->shortend_url !== $v) {
-            $this->shortend_url = $v;
-            $this->modifiedColumns[] = UrlsPeer::SHORTEND_URL;
+        if ($this->url_code !== $v) {
+            $this->url_code = $v;
+            $this->modifiedColumns[] = UrlsPeer::URL_CODE;
         }
 
 
         return $this;
-    } // setShortendUrl()
+    } // setUrlCode()
 
     /**
      * Sets the value of [date_added] column to a normalized version of the date/time value specified.
@@ -377,7 +377,7 @@ abstract class BaseUrls extends BaseObject implements Persistent
 
             $this->id = ($row[$startcol + 0] !== null) ? (int) $row[$startcol + 0] : null;
             $this->full_url = ($row[$startcol + 1] !== null) ? (string) $row[$startcol + 1] : null;
-            $this->shortend_url = ($row[$startcol + 2] !== null) ? (string) $row[$startcol + 2] : null;
+            $this->url_code = ($row[$startcol + 2] !== null) ? (string) $row[$startcol + 2] : null;
             $this->date_added = ($row[$startcol + 3] !== null) ? (string) $row[$startcol + 3] : null;
             $this->redirect_count = ($row[$startcol + 4] !== null) ? (int) $row[$startcol + 4] : null;
             $this->qr_code = ($row[$startcol + 5] !== null) ? (string) $row[$startcol + 5] : null;
@@ -608,8 +608,8 @@ abstract class BaseUrls extends BaseObject implements Persistent
         if ($this->isColumnModified(UrlsPeer::FULL_URL)) {
             $modifiedColumns[':p' . $index++]  = '`full_url`';
         }
-        if ($this->isColumnModified(UrlsPeer::SHORTEND_URL)) {
-            $modifiedColumns[':p' . $index++]  = '`shortend_url`';
+        if ($this->isColumnModified(UrlsPeer::URL_CODE)) {
+            $modifiedColumns[':p' . $index++]  = '`url_code`';
         }
         if ($this->isColumnModified(UrlsPeer::DATE_ADDED)) {
             $modifiedColumns[':p' . $index++]  = '`date_added`';
@@ -637,8 +637,8 @@ abstract class BaseUrls extends BaseObject implements Persistent
                     case '`full_url`':
                         $stmt->bindValue($identifier, $this->full_url, PDO::PARAM_STR);
                         break;
-                    case '`shortend_url`':
-                        $stmt->bindValue($identifier, $this->shortend_url, PDO::PARAM_STR);
+                    case '`url_code`':
+                        $stmt->bindValue($identifier, $this->url_code, PDO::PARAM_STR);
                         break;
                     case '`date_added`':
                         $stmt->bindValue($identifier, $this->date_added, PDO::PARAM_STR);
@@ -790,7 +790,7 @@ abstract class BaseUrls extends BaseObject implements Persistent
                 return $this->getFullUrl();
                 break;
             case 2:
-                return $this->getShortendUrl();
+                return $this->getUrlCode();
                 break;
             case 3:
                 return $this->getDateAdded();
@@ -831,7 +831,7 @@ abstract class BaseUrls extends BaseObject implements Persistent
         $result = array(
             $keys[0] => $this->getId(),
             $keys[1] => $this->getFullUrl(),
-            $keys[2] => $this->getShortendUrl(),
+            $keys[2] => $this->getUrlCode(),
             $keys[3] => $this->getDateAdded(),
             $keys[4] => $this->getRedirectCount(),
             $keys[5] => $this->getQrCode(),
@@ -881,7 +881,7 @@ abstract class BaseUrls extends BaseObject implements Persistent
                 $this->setFullUrl($value);
                 break;
             case 2:
-                $this->setShortendUrl($value);
+                $this->setUrlCode($value);
                 break;
             case 3:
                 $this->setDateAdded($value);
@@ -918,7 +918,7 @@ abstract class BaseUrls extends BaseObject implements Persistent
 
         if (array_key_exists($keys[0], $arr)) $this->setId($arr[$keys[0]]);
         if (array_key_exists($keys[1], $arr)) $this->setFullUrl($arr[$keys[1]]);
-        if (array_key_exists($keys[2], $arr)) $this->setShortendUrl($arr[$keys[2]]);
+        if (array_key_exists($keys[2], $arr)) $this->setUrlCode($arr[$keys[2]]);
         if (array_key_exists($keys[3], $arr)) $this->setDateAdded($arr[$keys[3]]);
         if (array_key_exists($keys[4], $arr)) $this->setRedirectCount($arr[$keys[4]]);
         if (array_key_exists($keys[5], $arr)) $this->setQrCode($arr[$keys[5]]);
@@ -935,7 +935,7 @@ abstract class BaseUrls extends BaseObject implements Persistent
 
         if ($this->isColumnModified(UrlsPeer::ID)) $criteria->add(UrlsPeer::ID, $this->id);
         if ($this->isColumnModified(UrlsPeer::FULL_URL)) $criteria->add(UrlsPeer::FULL_URL, $this->full_url);
-        if ($this->isColumnModified(UrlsPeer::SHORTEND_URL)) $criteria->add(UrlsPeer::SHORTEND_URL, $this->shortend_url);
+        if ($this->isColumnModified(UrlsPeer::URL_CODE)) $criteria->add(UrlsPeer::URL_CODE, $this->url_code);
         if ($this->isColumnModified(UrlsPeer::DATE_ADDED)) $criteria->add(UrlsPeer::DATE_ADDED, $this->date_added);
         if ($this->isColumnModified(UrlsPeer::REDIRECT_COUNT)) $criteria->add(UrlsPeer::REDIRECT_COUNT, $this->redirect_count);
         if ($this->isColumnModified(UrlsPeer::QR_CODE)) $criteria->add(UrlsPeer::QR_CODE, $this->qr_code);
@@ -1003,7 +1003,7 @@ abstract class BaseUrls extends BaseObject implements Persistent
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
         $copyObj->setFullUrl($this->getFullUrl());
-        $copyObj->setShortendUrl($this->getShortendUrl());
+        $copyObj->setUrlCode($this->getUrlCode());
         $copyObj->setDateAdded($this->getDateAdded());
         $copyObj->setRedirectCount($this->getRedirectCount());
         $copyObj->setQrCode($this->getQrCode());
@@ -1060,7 +1060,7 @@ abstract class BaseUrls extends BaseObject implements Persistent
     {
         $this->id = null;
         $this->full_url = null;
-        $this->shortend_url = null;
+        $this->url_code = null;
         $this->date_added = null;
         $this->redirect_count = null;
         $this->qr_code = null;
