@@ -74,6 +74,8 @@ class DefaultController extends SuperController
             $redirectUrl = $this->get('validation')->prepareUrl($url->getFullUrl());
             header("Location:  $redirectUrl");
             exit;
+        } else {
+            throw new \Exception('No Code Found');
         }
         
         return new Response('redirecting...');
