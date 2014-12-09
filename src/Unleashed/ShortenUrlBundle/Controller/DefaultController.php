@@ -7,9 +7,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 use Unleashed\ShortenUrlBundle\Model\Urls;
-use Unleashed\ShortenUrlBundle\Model\UserByIp;
+use Unleashed\ShortenUrlBundle\Model\UsersByIp;
 use Unleashed\ShortenUrlBundle\Model\UrlsQuery;
-use Unleashed\ShortenUrlBundle\Model\UserByIpQuery;
+use Unleashed\ShortenUrlBundle\Model\UsersByIpQuery;
 
 class DefaultController extends SuperController
 {
@@ -17,7 +17,11 @@ class DefaultController extends SuperController
     {
         if($request->getMethod() == 'POST'){
             $url = $request->request->get('url', null);
-            $this->insertUrl($url);
+            $viewUrlCode = $this->insertUrl($url);
+            
+            if(!empty($viewUrlCode)){
+                return $this->redirect($this->generateUrl('unleashed_view', array('urlCode' => $viewUrlCode)));                
+            }
         }
         
         return $this->render(
@@ -51,13 +55,31 @@ class DefaultController extends SuperController
         $url = UrlsQuery::create()
             ->filterByUrlCode($urlCode)
         ->findOne();
-        
-        $userRedirects = UserByIpQuery::create()
-            ->filterByUrlId($url->getId())
-        ->findOne();
-        
+
         if($url){
-            $redirectUrl = 'http://' . $url->getFullUrl();
+            $userRedirects = UsersByIpQuery::create()
+                ->filterByIpAddress($_SERVER['REMOTE_ADDR'])
+                ->filterByUrlId($url->getId())
+            ->findOne();
+            
+            //$userRedirectsCount = (!empty($userRedirects)) ? $userRedirects->getRedirectCount() + 1 : 1;
+            if(!empty($userRedirects)){
+                $userRedirectsCount = $userRedirects->getRedirectCount() + 1;
+            } else {
+                $userRedirects = new UsersByIp();
+                $userRedirects->setUrlId($url->getId());
+                $userRedirects->setIpAddress($_SERVER['REMOTE_ADDR']);
+                $userRedirectsCount = 1;
+            }
+
+            $userRedirects->setLastRedirect('now');
+            $userRedirects->setRedirectCount($userRedirectsCount);
+            $userRedirects->save();
+            
+            $url->setRedirectCount($url->getRedirectCount() + 1);
+            $url->save();
+            
+            $redirectUrl = $this->get('validation')->prepareUrl($url->getFullUrl());
             header("Location:  $redirectUrl");
             exit;
         }
@@ -74,9 +96,9 @@ class DefaultController extends SuperController
     {
         $validation = $this->get('validation');
 
-        if(!$validation->isValidateUrl($url) || !$validation->isValidDns($url)){
+        if(!$validation->isValidateUrl($url)){ // || !$validation->isValidDns($url)
             $this->get('session')->getFlashBag()->add('notice','This Url is Invalid');
-            
+die;
             return false;
         }
         
@@ -85,17 +107,25 @@ class DefaultController extends SuperController
         ->findOne();
         
         if($check){
-            $this->redirect($this->generateUrl('unleashed_view', array('urlCode' => $check->getUrlCode())));
+            $viewUrlCode = $check->getUrlCode();
+            
+            //return $this->redirect($this->generateUrl('unleashed_view', array('urlCode' => $check->getUrlCode())));
+        } else{
+            
+            $urlcode = $this->get('shorten_url')->getShortUrl();
+           
+            $newUrl = new Urls();
+            $newUrl->setFullUrl($validation->sanitizeInput($url));
+            $newUrl->setUrlCode($urlcode);
+            $newUrl->setDateAdded('now');
+            $newUrl->setQrCode(null);
+            $newUrl->save();
+            
+            $viewUrlCode = $newUrl->getUrlCode();
+            
+            //return $this->redirect($this->generateUrl('unleashed_view', array('urlCode' => $newUrl->getUrlCode())));
         }
         
-        $urlcode = $this->get('shorten_url')->getShortUrl();
-            
-        $newUrl = new Urls();
-        $newUrl->setFullUrl($validation->sanitizeInput($url));
-        $newUrl->setUrlCode($urlcode);
-        $newUrl->setDateAdded('now');
-        $newUrl->setQrCode(null);
-        
-        $this->redirect($this->generateUrl('unleashed_view', array('urlCode' => $newUrl->getUrlCode())));
+        return $viewUrlCode;
     }
 }
