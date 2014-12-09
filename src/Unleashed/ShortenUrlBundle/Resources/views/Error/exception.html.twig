@@ -1,0 +1,24 @@
+{% extends 'UnleashedShortenUrlBundle::layout.html.twig' %}
+
+{% block title %}Error - {% endblock %}
+
+{% block styles %}
+    {{ parent() }}
+    <style>
+        #error-wrap{
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    
+    <div>
+        <div id="view-wrap">
+            <div id="error-wrap">
+                Sorry but you have encountered an Error. <a href="{{ path('unleashed_homepage') }}">Click Here</a> to try again.
+            </div>            
+        </div>
+    </div>
+    
+{% endblock %}

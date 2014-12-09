@@ -5,3 +5,10 @@ services:
 
     validation:
         class: Unleashed\ShortenUrlBundle\Services\ValidationService
+        
+    kernel.listener.error_listener:
+        class: Unleashed\ShortenUrlBundle\EventListener\ShortenUrlExceptionListener
+        arguments: ["@templating", "@mailer"]
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
+
