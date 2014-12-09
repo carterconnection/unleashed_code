@@ -50,13 +50,13 @@
             <div class="pull-left qr-label">
                 <span class="label cell">Qr Code: </span>
             </div>
-            
+
             <div class="cell pull-left">
                 <img alt="{{ data.shortenedUrl }}"src="{{ qrcode_data_uri('{{ data.shortenedUrl }}', size=200, padding=10) }}" />                    
             </div>
             <div class="clear"></div>
         </div>
-        
+
         <div id="analytics">
             <div class="table data stats-wrap">
                 <div class="shrink">
@@ -81,8 +81,9 @@
                 </div>
             </div>
         </div>
-        
-        
+        <div>
+            <input type="hidden" id="urlCode" value="{{ data.url.urlCode }}" />
+        </div>
     </div>
     
 {% endblock %}

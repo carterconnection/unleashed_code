@@ -5,7 +5,16 @@ unleashed_homepage:
 unleashed_view:
     path:     /view/{urlCode}
     defaults: { _controller: UnleashedShortenUrlBundle:Default:view }
+    options:
+        expose: true
     
 unleashed_redirect:
     path:     /{urlCode}
     defaults: { _controller: UnleashedShortenUrlBundle:Default:redirect }
+    
+unleashed_load_analytics:
+    path: /re/analytics
+    defaults: { _controller: UnleashedShortenUrlBundle:Auto:loadAnalytics }
+    condition: "context.getMethod() in ['POST']"
+    options:
+        expose: true

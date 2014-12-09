@@ -59,6 +59,8 @@ License URL: http://creativecommons.org/licenses/by/3.0/
         </script>
 		
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+		<script src="{{ asset('bundles/fosjsrouting/js/router.js') }}"></script>
+		<script src="{{ path('fos_js_routing_js', {"callback": "fos.Router.setData"}) }}"></script>
     {% endblock %}
     
     

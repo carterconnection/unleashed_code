@@ -19,7 +19,8 @@
         "sensio/framework-extra-bundle": "~3.0",
         "incenteev/composer-parameter-handler": "~2.0",
 	"endroid/qrcode-bundle": "dev-master",
-	"propel/propel-bundle": "1.4.*"
+	"propel/propel-bundle": "1.4.*",
+        "friendsofsymfony/jsrouting-bundle": "~1.5"
     },
     "require-dev": {
         "sensio/generator-bundle": "~2.3"

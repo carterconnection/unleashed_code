@@ -17,9 +17,10 @@ class AppKernel extends Kernel
             new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
             new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
             new AppBundle\AppBundle(),
-	    new Propel\PropelBundle\PropelBundle(),
-	    new Endroid\Bundle\QrCodeBundle\EndroidQrCodeBundle(),
+			new Propel\PropelBundle\PropelBundle(),
+			new Endroid\Bundle\QrCodeBundle\EndroidQrCodeBundle(),
             new Unleashed\ShortenUrlBundle\UnleashedShortenUrlBundle(),
+			new FOS\JsRoutingBundle\FOSJsRoutingBundle(),
         );
 
         if (in_array($this->getEnvironment(), array('dev', 'test'))) {

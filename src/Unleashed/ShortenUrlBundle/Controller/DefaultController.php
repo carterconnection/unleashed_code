@@ -47,7 +47,7 @@ class DefaultController extends SuperController
             $data->url->currentUserRedirects = $redirect->getRedirectCount();
         }
         
-        $data->shortenedUrl = $this->generateUrl('unleashed_view', array('urlCode' => $data->url->getUrlCode()), true);
+        $data->shortenedUrl = $this->generateUrl('unleashed_redirect', array('urlCode' => $data->url->getUrlCode()), true);
 
         return $this->render(
             'UnleashedShortenUrlBundle:Default:view.html.twig'

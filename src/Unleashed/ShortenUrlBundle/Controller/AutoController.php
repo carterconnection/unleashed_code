@@ -11,10 +11,12 @@ use Unleashed\ShortenUrlBundle\Model\UsersByIp;
 use Unleashed\ShortenUrlBundle\Model\UrlsQuery;
 use Unleashed\ShortenUrlBundle\Model\UsersByIpQuery;
 
-class DefaultController extends SuperController
+class AutoController extends SuperController
 {
-    public function loadAnalytics(Request $request)
+    public function loadAnalyticsAction(Request $request)
     {
+        $urlId = $request->request->get('urlId', null);
+        
         $test = 'something';
         
         $response = new JsonResponse();
