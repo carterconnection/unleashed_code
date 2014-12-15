@@ -55,7 +55,7 @@
 
             <div class="cell pull-left">
                 <a target="_blank" class="load-redirect" href="{{ data.shortenedUrl }}">
-                    <img alt="{{ data.shortenedUrl }}"src="{{ qrcode_url(data.shortenedUrl, size=200, padding=10) }}" />
+                    <img alt="{{ data.shortenedUrl }}"src="{{ qrcode_data_uri(data.shortenedUrl, size=200, padding=10) }}" />
                 </a>
             </div>
             <div class="clear"></div>
