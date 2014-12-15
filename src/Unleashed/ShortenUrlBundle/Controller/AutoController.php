@@ -37,7 +37,7 @@ class AutoController extends SuperController
         
             $result = $this->get('shorten_url')->newUrlCode($url);
             if(empty($result)){
-                throw new \Exception('asasdsdda');
+                throw new \Exception('An Error Occured While Creating Short Url');
             }
             $returnArray = $result->toArray();
             unset($returnArray['Id']);
