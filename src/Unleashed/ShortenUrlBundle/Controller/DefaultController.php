@@ -109,41 +109,4 @@ class DefaultController extends SuperController
         $url->setRedirectCount($url->getRedirectCount() + 1);
         $url->save();
     }
-
-    private function insertUrl($url)
-    {
-        //$validation = $this->get('validation');
-        //$url = $validation->prepareUrl($url);
-        //
-        //if(empty($url)){ 
-        //    $this->get('session')->getFlashBag()->add('notice','This Url is Invalid');
-        //
-        //    return false;
-        //}
-        //
-        //$check = UrlsQuery::create()
-        //    ->filterByFullUrl($url)
-        //->findOne();
-        //
-        //if($check){
-        //    $viewUrlCode = $check->getUrlCode();
-        //    
-        //} else{
-        //    
-        //    $urlcode = $this->get('shorten_url')->getShortUrl();
-        //   
-        //    $newUrl = new Urls();
-        //    $newUrl->setFullUrl($url);
-        //    $newUrl->setUrlCode($urlcode);
-        //    $newUrl->setDateAdded('now');
-        //    $newUrl->setQrCode(null);
-        //    $newUrl->save();
-        //    
-        //    $viewUrlCode = $newUrl->getUrlCode();
-        //}
-        
-        $urlObj = $this->get('shorten_url')->newUrlCode($url);
-        
-        return $urlObj->getUrlCode();
-    }
 }
